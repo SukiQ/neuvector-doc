@@ -14,7 +14,7 @@
 
         <misc>
             <cards>
-                <title></title>
+                <title>知识</title>
                 <a href="deploy.md"
                    summary="NeuVector部署指南" type="tools"/>
             </cards>
