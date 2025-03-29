@@ -7,8 +7,8 @@
     <!--    </footer>-->
     <variables>
         <primary-color>#30BA78</primary-color>
-        <header-logo>logo.webp</header-logo>
-        <custom-favicons>logo.webp</custom-favicons>
+        <header-logo>logo.png</header-logo>
+        <custom-favicons>logo.png</custom-favicons>
     </variables>
 
     <build-profile instance="NeuVector">
