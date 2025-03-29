@@ -8,8 +8,6 @@
         <spotlight>
             <a href="overview.md"
                summary="介绍NeuVector发展过程，版本，作用等" type="learn"/>
-        </spotlight>
-        <spotlight>
             <a href="deploy.md"
                summary="NeuVector部署指南" type="tools"/>
         </spotlight>
