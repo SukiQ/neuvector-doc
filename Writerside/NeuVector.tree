@@ -7,4 +7,5 @@
                  start-page="main.topic">
     <toc-element topic="main.topic"/>
     <toc-element topic="overview.md"/>
+    <toc-element topic="deploy.md"/>
 </instance-profile>
