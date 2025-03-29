@@ -2,7 +2,22 @@
 <!DOCTYPE buildprofiles SYSTEM "https://resources.jetbrains.com/writerside/1.0/build-profiles.dtd">
 <buildprofiles xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/build-profiles.xsd"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!--    <footer>-->
+    <!--        <social type="email" href="weijun.wang@zznode.com">Call author</social>-->
+    <!--    </footer>-->
+    <variables>
+        <primary-color>#30BA78</primary-color>
+        <header-logo>logo.webp</header-logo>
+        <custom-favicons>logo.webp</custom-favicons>
+    </variables>
 
-    <variables></variables>
+    <build-profile instance="NeuVector">
+        <variables>
+            <noindex-content>false</noindex-content>
+            <color-preset>soft</color-preset>
+            <content-max-width>1400</content-max-width>
+            <link-color>#30BA78</link-color>
+        </variables>
+    </build-profile>
 
 </buildprofiles>

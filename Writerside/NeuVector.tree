@@ -3,8 +3,8 @@
         SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
 
 <instance-profile id="NeuVector"
-                 name="Help Instance"
-                 start-page="Default-topic.md">
-
-    <toc-element topic="Default-topic.md"/>
+                 name="NeuVector"
+                 start-page="main.topic">
+    <toc-element topic="main.topic"/>
+    <toc-element topic="overview.md"/>
 </instance-profile>
