@@ -6,10 +6,17 @@
         <title>NeuVector</title>
         <description>NeuVector 技术指导文档</description>
         <spotlight>
+            <a href="introduction.md"
+               summary="介绍容器安全相关知识" type="computer"/>
             <a href="overview.md"
                summary="介绍NeuVector发展过程，版本，作用等" type="learn"/>
-            <a href="deploy.md"
-               summary="NeuVector部署指南" type="tools"/>
         </spotlight>
+
+        <misc>
+            <cards>
+                <a href="deploy.md"
+                   summary="NeuVector部署指南" type="tools"/>
+            </cards>
+        </misc>
     </section-starting-page>
 </topic>
