@@ -1,0 +1,3314 @@
+swagger: '2.0'
+
+################################################################################
+#                              API Information                                 #
+################################################################################
+info:
+  description: Secure Docker and Kubernetes based container deployments with the NeuVector run-time security solution.
+  version: '5.4.3'
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: NeuVector API
+  contact:
+    email: support@neuvector.com
+schemes:
+  - https
+externalDocs:
+  description: Find out more about NeuVector
+  url: 'https://www.suse.com/products/neuvector/'
+
+################################################################################
+#                                   Tags                                       #
+################################################################################
+tags:
+  - name: Admission
+    description: Admission Control
+  - name: Authentication
+    description: Authenticates login or logout
+  - name: Compliance
+    description: Operations about Compliance
+  - name: Controller
+    description: Operations about Controller
+  - name: DLP
+    description: Operations about DLP
+  - name: Namespace
+    description: Operations about Namespace
+  - name: Enforcer
+    description: Operations about Enforcer
+  - name: EULA
+    description: End-User License Agreement
+  - name: File
+    description: Operations about File
+  - name: File Monitor
+    description: Operations about File Monitor
+  - name: Group
+    description: Operations about Group
+  - name: Host
+    description: Operations about Host
+  - name: Log
+    description: Operations about Log
+  - name: Policy
+    description: Operations about Policy
+  - name: Process
+    description: Operations about Process Profile
+  - name: Response Rule
+    description: Operations about Response Rule
+  - name: Scan
+    description: Operations about Scan
+  - name: Server
+    description: Operations about Server
+  - name: Cloud
+    description: Operations about Cloud
+  - name: Service
+    description: Operations about Service
+  - name: Sniffer
+    description: Operations about Sniffer
+  - name: System
+    description: Operations about System
+  - name: User
+    description: Operations about User
+  - name: Vulnerability
+    description: Operations about Vulnerability management
+  - name: WAF Rule
+    description: Operations about waf Rule
+  - name: Container
+    description: Operations about Container
+  - name: Federation
+    description: Operations about Federation
+
+################################################################################
+#                                  Paths                                       #
+################################################################################
+paths:
+  /v1/admission/options:
+    get:
+      tags:
+        - Admission
+      summary: 获取准入选项列表
+      security:
+        - ApiKeyAuth: []
+        - TokenAuth: []
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RESTAdmissionConfigData'
+  /v1/admission/rule/{id}:
+    get:
+      tags:
+        - Admission
+      summary: 显示准入规则
+      security:
+        - ApiKeyAuth: []
+        - TokenAuth: []
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          description: Rule ID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RESTAdmissionRuleData'
+    delete:
+      tags:
+        - Admission
+      summary: 删除准入规则
+      security:
+        - ApiKeyAuth: []
+        - TokenAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: Rule ID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+  /v1/admission/rule:
+    post:
+      tags:
+        - Admission
+      summary: 添加准入控制规则
+      security:
+        - ApiKeyAuth: []
+        - TokenAuth: []
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Admission rule data
+          required: true
+          schema:
+            $ref: '#/definitions/RESTAdmissionRuleConfigData'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RESTAdmissionRuleData'
+    patch:
+      tags:
+        - Admission
+      summary: 更新准入规则
+      security:
+        - ApiKeyAuth: []
+        - TokenAuth: []
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Admission rule data
+          required: true
+          schema:
+            $ref: '#/definitions/RESTAdmissionRuleConfigData'
+      responses:
+        '200':
+          description: Success
+  /v1/admission/rule/promote:
+    post:
+      tags:
+        - Admission
+      summary: 提升准入控制规则
+      security:
+        - ApiKeyAuth: []
+        - TokenAuth: []
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Admission control rule data
+          required: true
+          schema:
+            $ref: '#/definitions/RESTAdmCtrlPromoteRequestData'
+      responses:
+        '200':
+          description: Success
+  /v1/admission/rules:
+    get:
+      tags:
+        - Admission
+      summary: 获取准入规则列表
+      security:
+        - ApiKeyAuth: []
+        - TokenAuth: []
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: scope
+          type: string
+          required: false
+          enum:
+            - fed
+            - local
+          description: "When set to fed, returned fed admission rules. When set to local, returned local admission rules. If there is no query string 'scope', all admission rules will be returned."
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RESTAdmissionRulesData'
+    delete:
+      tags:
+        - Admission
+      summary: 删除所有准入规则
+      security:
+        - ApiKeyAuth: []
+        - TokenAuth: []
+      parameters:
+        - in: query
+          name: scope
+          type: string
+          required: false
+          enum:
+            - fed
+            - local
+          description: "When set to fed, fed admission rules get removed. When set to local or no query string, local admission rules will be removed."
+      responses:
+        '200':
+          description: Success
+
+################################################################################
+#                                 Security Definitions                         #
+################################################################################
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: X-Auth-Apikey
+  TokenAuth:
+    type: apiKey
+    in: header
+    name: X-Auth-Token
+
+################################################################################
+#                                 Definitions                                  #
+################################################################################
+definitions:
+  Audit:
+    type: object
+    required:
+      - level
+      - reported_timestamp
+      - reported_at
+      - cluster_name
+      - host_id
+      - host_name
+      - enforcer_id
+      - enforcer_name
+      - base_os
+      - high_vul_cnt
+      - medium_vul_cnt
+      - cvedb_version
+      - message
+      - user
+      - error
+      - aggregation_from
+      - count
+      - platform
+      - platform_version
+    properties:
+      name:
+        type: string
+        example: Container.Managed
+      level:
+        type: string
+        example: INFO
+      reported_timestamp:
+        type: integer
+        format: int64
+        example: 1516832670
+      reported_at:
+        type: string
+        format: date-time
+        example: 2018-01-24T22:24:30Z
+      cluster_name:
+        type: string
+        example: cluster1
+      response_rule_id:
+        type: integer
+        example: 10007
+      host_id:
+        type: string
+        example: 2AU7:TIEN:O5KX:QK56:LFQP:IJSV:FXBN:QJV7
+      host_name:
+        type: string
+        example: ubuntu64
+      enforcer_id:
+        type: string
+        example: bced57295eefbd3f3bd0cf798b6184fa789
+      enforcer_name:
+        type: string
+        example: allinone
+      workload_id:
+        type: string
+        example: 7df6a19648e2860c89fe12c8d5b1c52079a
+      workload_name:
+        type: string
+        example: ""
+      workload_domain:
+        type: string
+        example: ""
+      workload_image:
+        type: string
+        example: ""
+      workload_service:
+        type: string
+        example: ""
+      image:
+        type: string
+        example: "alpine:3.16.1"
+      image_id:
+        type: string
+        example: d572b7ee3511b21a2b78b8915bc03c5786ad01949704c1418624224c4cae2c5f
+      registry:
+        type: string
+        example: https://registry.hub.docker.com/
+      registry_name:
+        type: string
+        example: ""
+      repository:
+        type: string
+        example: alpine
+      tag:
+        type: string
+        example: latest
+      base_os:
+        type: string
+        example: ubuntu:16.04
+      high_vul_cnt:
+        type: integer
+        example: 1
+      medium_vul_cnt:
+        type: integer
+        example: 1
+      high_vuls:
+        type: array
+        items:
+          type: string
+          example: ""
+      medium_vuls:
+        type: array
+        items:
+          type: string
+          example: ""
+      cvedb_version:
+        type: string
+        example: "1.011"
+      message:
+        type: string
+        example: ""
+      user:
+        type: string
+        example: root
+      error:
+        type: string
+        example: "Request failed"
+      aggregation_from:
+        type: integer
+        format: int64
+        example: 1516832670
+      count:
+        type: integer
+        example: 10
+      items:
+        type: array
+        items:
+          type: string
+          example: ""
+      platform:
+        type: string
+        example: ""
+      platform_version:
+        type: string
+        example: ""
+      packages:
+        type: array
+        items:
+          type: string
+          example: ""
+      package_ver:
+        type: string
+      fixed_ver:
+        type: string
+      score:
+        type: number
+        format: float32
+        example: 7.3
+      score_v3:
+        type: number
+        format: float32
+        example: 7.3
+      vectors:
+        type: string
+      vectors_v3:
+        type: string
+      link:
+        type: string
+      description:
+        type: string
+      pub_date:
+        type: string
+      last_mod_date:
+        type: string
+      image_layer_digest:
+        type: string
+        example: "sha256:08614570918e6832c44397cc7bce8037f07a8e2b87aec19d57a3da5eff274c7b"
+      cmds:
+        type: string
+  Event:
+    type: object
+    required:
+      - level
+      - reported_timestamp
+      - reported_at
+      - cluster_name
+      - host_id
+      - host_name
+      - enforcer_id
+      - enforcer_name
+      - controller_id
+      - controller_name
+      - workload_id
+      - workload_name
+      - workload_domain
+      - workload_image
+      - workload_service
+      - category
+      - user
+      - user_roles
+      - user_addr
+      - user_session
+      - message
+    properties:
+      name:
+        type: string
+        example: Container.Managed
+      level:
+        type: string
+        example: INFO
+      reported_timestamp:
+        type: integer
+        format: int64
+        example: 1516832670
+      reported_at:
+        type: string
+        format: date-time
+        example: 2018-01-24T22:24:30Z
+      cluster_name:
+        type: string
+        example: cluster1
+      response_rule_id:
+        type: integer
+        example: 10009
+      host_id:
+        type: string
+        example: QK56:LFQP:IJSV:FXBN:QJV7:5MBB:6PL5
+      host_name:
+        type: string
+        example: ubuntu64
+      enforcer_id:
+        type: string
+        example: bced57295eefbd3f3bd0cf798b6184fa789
+      enforcer_name:
+        type: string
+        example: allinone
+      controller_id:
+        type: string
+        example: ""
+      controller_name:
+        type: string
+        example: ""
+      workload_id:
+        type: string
+        example: 7df6a19648e2860c89fe12c8d5b1c52079a
+      workload_name:
+        type: string
+        example: kafkadocker_zookeeper_1
+      workload_domain:
+        type: string
+        example: ""
+      workload_image:
+        type: string
+        example: zookeeper
+      workload_service:
+        type: string
+        example: ""
+      category:
+        type: string
+        example: WORKLOAD
+      user:
+        type: string
+        example: user
+      user_roles:
+        type: object
+        description: map key is domain(string type)
+        additionalProperties:
+          type: string
+        example:
+          domain1: admin
+          domain2: reader
+      user_addr:
+        type: string
+        example: ""
+      user_session:
+        type: string
+        example: ""
+      rest_method:
+        type: string
+        example: ""
+      rest_request:
+        type: string
+        example: ""
+      rest_body:
+        type: string
+        example: ""
+      enforcer_limit:
+        type: integer
+        example: 0
+      license_expire:
+        type: string
+        example: ""
+      message:
+        type: string
+        example: "Start managing container kafkadocker_zookeeper_1"
+  GroupRoleMapping:
+    type: object
+    required:
+      - group
+      - global_role
+    properties:
+      group:
+        type: string
+        example: "Domain Admins"
+      global_role:
+        type: string
+        example: admin
+      role_domains:
+        type: object
+        description: Object key is role and value is array of domains
+        additionalProperties:
+          type: array
+          items:
+            type: string
+          example: ["domain1", "domain2"]
+  Incident:
+    type: object
+    required:
+      - name
+      - level
+      - reported_timestamp
+      - reported_at
+      - cluster_name
+      - response_rule_id
+      - host_id
+      - host_name
+      - enforcer_id
+      - enforcer_name
+      - id
+      - workload_id
+      - workload_name
+      - workload_domain
+      - workload_image
+      - workload_service
+      - remote_workload_id
+      - remote_workload_name
+      - remote_workload_domain
+      - remote_workload_image
+      - remote_workload_service
+      - proc_name
+      - proc_path
+      - proc_cmd
+      - proc_real_uid
+      - proc_effective_uid
+      - proc_real_user
+      - proc_effective_user
+      - file_path
+      - file_name
+      - client_ip
+      - server_ip
+      - client_port
+      - server_port
+      - server_conn_port
+      - ether_type
+      - ip_proto
+      - conn_ingress
+      - proc_parent_name
+      - proc_parent_path
+      - action
+      - group
+      - rule_id
+      - aggregation_from
+      - count
+      - message
+    properties:
+      name:
+        type: string
+        example: Host.Suspicious.Process
+      level:
+        type: string
+        example: WARNING
+      reported_timestamp:
+        type: integer
+        format: int64
+        example: 1515020888
+      reported_at:
+        type: string
+        format: date-time
+        example: 2018-01-03T23:08:08Z
+      cluster_name:
+        type: string
+        example: cluster1
+      response_rule_id:
+        type: integer
+        example: 10006
+      host_id:
+        type: string
+        example: ubuntu64:ZYA3:UZL5:2WOT:QYEF:SLVT:LIBD
+      host_name:
+        type: string
+        example: ubuntu64
+      enforcer_id:
+        type: string
+        example: a928be54f34fbb696426890a7249c067
+      enforcer_name:
+        type: string
+        example: allinone
+      id:
+        type: string
+        example: e6e19591-75a0-43e9-bebb-145d588e6718
+      workload_id:
+        type: string
+        example: 83e76eabd68494649440fa0a35451315289c70eb3094454e419952dffaa7715a
+      workload_name:
+        type: string
+        example: iperfserver
+      workload_domain:
+        type: string
+        example: ""
+      workload_image:
+        type: string
+        example: iperfserver
+      workload_service:
+        type: string
+        example: iperfserver
+      remote_workload_id:
+        type: string
+        example: external
+      remote_workload_name:
+        type: string
+        example: iperfclient
+      remote_workload_domain:
+        type: string
+        example: ""
+      remote_workload_image:
+        type: string
+        example: iperfclient
+      remote_workload_service:
+        type: string
+        example: iperfclient
+      proc_name:
+        type: string
+        example: nc
+      proc_path:
+        type: string
+        example: /bin/nc.traditional
+      proc_cmd:
+        type: string
+        example: "./dns_tunneling/iodine/bin/iodine -f -r 172.17.0.3 -P"
+      proc_real_uid:
+        type: integer
+        example: 1000
+      proc_effective_uid:
+        type: integer
+        example: 1000
+      proc_real_user:
+        type: string
+        example: test
+      proc_effective_user:
+        type: string
+        example: root
+      file_path:
+        type: string
+        example: ""
+      file_name:
+        type: array
+        items:
+          type: string
+          example: ""
+      client_ip:
+        type: string
+        example: 192.168.1.62
+      server_ip:
+        type: string
+        example: 10.1.4.3
+      client_port:
+        type: integer
+        format: uint16
+        example: 56564
+      server_port:
+        type: integer
+        format: uint16
+        example: 80
+      server_conn_port:
+        type: integer
+        format: uint16
+        example: 80
+      ether_type:
+        type: integer
+        format: uint16
+        example: 2048
+      ip_proto:
+        type: integer
+        format: uint8
+        example: 6
+      conn_ingress:
+        type: boolean
+        example: false
+      proc_parent_name:
+        type: string
+        example: sh
+      proc_parent_path:
+        type: string
+        example: /bin/dash
+      action:
+        type: string
+        example: violate
+      group:
+        type: string
+        example: nv.iperfserver
+      rule_id:
+        type: string
+        example: 00000000-0000-0000-0000-000000000001
+      aggregation_from:
+        type: integer
+        format: int64
+        example: 1515020888
+      count:
+        type: integer
+        example: 1
+      message:
+        type: string
+        example: "dns tunneling"
+  RESTAdmCatOptions:
+    type: object
+    properties:
+      k8s_options:
+        $ref: '#/definitions/RESTAdmRuleOptions'
+  RESTAdmCtrlPromoteRequest:
+    type: object
+    required:
+      - ids
+    properties:
+      ids:
+        type: array
+        items:
+          type: integer
+          format: uint32
+          example: 12
+  RESTAdmCtrlPromoteRequestData:
+    type: object
+    required:
+      - request
+    properties:
+      request:
+        $ref: '#/definitions/RESTAdmCtrlPromoteRequest'
+  RESTAdmCtrlRulesExport:
+    type: object
+    properties:
+      export_config:
+        type: boolean
+        example: true
+      ids:
+        type: array
+        items:
+          type: integer
+          format: uint32
+          example: 12
+      remote_export_options:
+        $ref: '#/definitions/RESTRemoteExportOptions'
+  RESTAdmCtrlTestRuleInfo:
+    type: object
+    required:
+      - container_image
+      - id
+      - disabled
+      - type
+      - mode
+      - rule_details
+      - rule_cfg_type
+    properties:
+      container_image:
+        type: string
+        description: the tested container image in the pod
+      id:
+        type: integer
+        format: uint32
+        example: 10001
+      disabled:
+        type: boolean
+        example: false
+      type:
+        type: string
+        enum: [allow, deny]
+      mode:
+        type: string
+        description: per-rule mode
+        enum: ["monitor","protect",""]
+      rule_details:
+        type: string
+        example: "It matches deny rule id 1000 with criteria: (allow privilege escalation = true)"
+      rule_cfg_type:
+        type: string
+        enum: [federal, ground, user_created]
+  RESTAdmCtrlRulesTestResult:
+    type: object
+    required:
+      - index
+      - name
+      - kind
+      - message
+      - matched_rules
+      - allowed
+    properties:
+      index:
+        type: integer
+        example: 1
+      name:
+        type: string
+        example: iperfserver
+      kind:
+        type: string
+        example: Deployment
+      message:
+        type: string
+        example: "<Assessment> Creation of Kubernetes Deployment is allowed [Notice: the requested image(s) are not scanned: quay.io/nvlab/iperf]."
+      matched_rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAdmCtrlTestRuleInfo'
+      allowed:
+        type: boolean
+        example: false
+  RESTAdmCtrlRulesTestResults:
+    type: object
+    properties:
+      props_unavailable:
+        type: array
+        items:
+          type: string
+        example: ["user", "userGroups"]
+      global_mode:
+        type: string
+        enum: ["monitor","protect", ""]
+      results:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAdmCtrlRulesTestResult'
+  RESTAdmissionConfigData:
+    type: object
+    required:
+      - k8s_env
+    properties:
+      state:
+        $ref: '#/definitions/RESTAdmissionState'
+      admission_options:
+        $ref: '#/definitions/RESTAdmRuleTypeOptions'
+      k8s_env:
+        type: boolean
+        example: false
+      admission_custom_criteria_options:
+        $ref: '#/definitions/RESTAdminCustomCriteriaOptions'
+      admission_custom_criteria_templates:
+        $ref: '#/definitions/RESTAdminCriteriaTemplate'
+      predefined_risky_roles:
+        type: array
+        items:
+          type: string
+        example: ["risky_role_view_secret", "risky_role_create_pod"]
+  RESTAdmissionRule:
+    type: object
+    required:
+      - id
+      - category
+      - comment
+      - criteria
+      - disable
+      - critical
+      - cfg_type
+      - rule_type
+      - rule_mode
+      - containers
+    properties:
+      id:
+        type: integer
+        format: uint32
+        example: 2
+      category:
+        type: string
+        example: Kubernetes
+      comment:
+        type: string
+        example: "Do not delete this exception rule"
+      criteria:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAdmRuleCriterion'
+      disable:
+        type: boolean
+        example: false
+      critical:
+        type: boolean
+        example: false
+      cfg_type:
+        type: string
+        enum: [user_created, ground, federal]
+      rule_type:
+        type: string
+        enum: [exception, deny]
+      rule_mode:
+        type: string
+        enum: ["", monitor, protect]
+      containers:
+        type: array
+        items:
+          type: string
+          enum: [containers, init_containers, ephemeral_containers]
+  RESTAdmissionRuleConfig:
+    type: object
+    required:
+      - id
+      - category
+      - cfg_type
+      - rule_type
+      - containers
+    properties:
+      id:
+        type: integer
+        format: uint32
+        example: 1
+      category:
+        type: string
+        example: Kubernetes
+      comment:
+        type: string
+        example: comment
+      criteria:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAdmRuleCriterion'
+      disable:
+        type: boolean
+        example: true
+      actions:
+        type: array
+        items:
+          type: string
+          example: ""
+      cfg_type:
+        type: string
+        enum: [user_created, ground, federal]
+      rule_type:
+        type: string
+        enum: [exception, deny]
+      rule_mode:
+        type: string
+        enum: ["", monitor, protect]
+      containers:
+        type: array
+        items:
+          type: string
+          enum: [containers, init_containers, ephemeral_containers]
+  RESTAdmissionRuleConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTAdmissionRuleConfig'
+  RESTAdmissionRuleData:
+    type: object
+    required:
+      - rule
+    properties:
+      rule:
+        $ref: '#/definitions/RESTAdmissionRule'
+  RESTAdmissionRulesData:
+    type: object
+    required:
+      - rules
+    properties:
+      rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAdmissionRule'
+  RESTAdmissionRuleOption:
+    type: object
+    required:
+      - name
+      - ops
+    properties:
+      name:
+        type: string
+        example: group
+      ops:
+        type: array
+        items:
+          type: string
+        example:
+          - containsAny
+          - containsAll
+          - =
+      values:
+        type: array
+        items:
+          type: string
+        example:
+          - ""
+          - "true"
+          - "false"
+      match_src:
+        type: string
+        example: yaml
+      sub_options:
+        type: object
+        properties:
+          rule:
+            type: string
+            example: criterion_name
+          options:
+            $ref: '#/definitions/RESTAdmissionRuleOption'
+  RESTAdmRuleCriterion:
+    type: object
+    required:
+      - name
+      - op
+      - value
+    properties:
+      name:
+        type: string
+        example: namespace
+      op:
+        type: string
+        example: =
+      value:
+        type: string
+        example: kube-system
+      sub_criteria:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAdmRuleCriterion'
+      type:
+        type: string
+        example: customPath
+      template_kind:
+        type: string
+        example: podTemplate
+      path:
+        type: string
+        example: item.spec.serviceAccountName
+      value_type:
+        type: string
+        example: string
+  RESTAdmRuleOptions:
+    type: object
+    required:
+      - rule_options
+    properties:
+      rule_options:
+        type: object
+        properties:
+          rule:
+            type: string
+            example: criterion_name
+          options:
+            $ref: '#/definitions/RESTAdmissionRuleOption'
+  RESTAdmRuleTypeOptions:
+    type: object
+    required:
+      - deny_options
+      - exception_options
+    properties:
+      deny_options:
+        $ref: '#/definitions/RESTAdmCatOptions'
+      exception_options:
+        $ref: '#/definitions/RESTAdmCatOptions'
+      psp_collection:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAdmRuleCriterion'
+      pss_collections:
+        type: object
+        description: map key is domain(string type)
+        additionalProperties:
+          type: array
+          items:
+            type: string
+        example:
+          restricted: ["Uses illegal volume type.", "Allows running as root user."]
+          baseline: ["Sets HostNetwork, HostPID, or HostIPC to true.", "Allows privileged container(s)."]
+      sigstore_verifiers:
+        type: array
+        items:
+          type: string
+        example: ["public/verifier1", "private1/verifier1", "private1/verifier2"]
+  RESTAdmissionState:
+    type: object
+    properties:
+      enable:
+        type: boolean
+        example: true
+      mode:
+        type: string
+        example: Protect
+      default_action:
+        type: string
+        example: allow
+      adm_client_mode:
+        type: string
+        example: service
+      adm_svc_type:
+        type: string
+        example: ""
+      adm_client_mode_options:
+        type: object
+        properties:
+          service:
+            type: string
+            example: service
+          url:
+            type: string
+            example: "service:xyz-svc-admission-webhook.xyz.svc"
+      ctrl_states:
+        type: object
+        properties:
+          validate:
+            type: string
+            example: validate
+          states:
+            type: boolean
+            example: true
+  RESTAdmissionStats:
+    type: object
+    required:
+      - k8s_allowed_requests
+      - k8s_denied_requests
+      - k8s_erroneous_requests
+      - k8s_ignored_requests
+      - jenkins_allowed_requests
+      - jenkins_denied_requests
+      - jenkins_erroneous_requests
+    properties:
+      k8s_allowed_requests:
+        type: integer
+        format: int64
+        example: 2
+      k8s_denied_requests:
+        type: integer
+        format: int64
+        example: 1
+      k8s_erroneous_requests:
+        type: integer
+        format: int64
+        example: 1
+      k8s_ignored_requests:
+        type: integer
+        format: int64
+        example: 1
+      jenkins_allowed_requests:
+        type: integer
+        format: int64
+        example: 3
+      jenkins_denied_requests:
+        type: integer
+        format: int64
+        example: 1
+      jenkins_erroneous_requests:
+        type: integer
+        format: int64
+        example: 1
+  RESTAdmissionStatsData:
+    type: object
+    required:
+      - stats
+    properties:
+      stats:
+        $ref: '#/definitions/RESTAdmissionStats'
+  RESTAgent:
+    type: object
+    required:
+      - id
+      - name
+      - display_name
+      - host_name
+      - host_id
+      - version
+      - labels
+      - domain
+      - pid_mode
+      - network_mode
+      - created_at
+      - started_at
+      - joined_at
+      - memory_limit
+      - cpus
+      - cluster_ip
+      - connection_state
+      - disconnected_at
+    properties:
+      id:
+        type: string
+        example: 924ccbbfcac6842e7370305bc51f4594764314f6
+      name:
+        type: string
+        example: allinone
+      display_name:
+        type: string
+        example: allinone
+      host_name:
+        type: string
+        example: ubuntu64
+      host_id:
+        type: string
+        example: 2AU7:TIEN:O5KX:QK56:LFQP:IJSV:FXBN:QJV7
+      version:
+        type: string
+        example: 0.1.0
+      labels:
+        type: object
+        description: map key is string type
+        additionalProperties:
+          type: string
+        example:
+          com.docker.compose.service: allinone
+      domain:
+        type: string
+        example: ""
+      pid_mode:
+        type: string
+        example: ""
+      network_mode:
+        type: string
+        example: host
+      created_at:
+        type: string
+        format: date-time
+        example: 2018-01-23T21:14:31Z
+      started_at:
+        type: string
+        format: date-time
+        example: 2018-01-23T21:14:31Z
+      joined_at:
+        type: string
+        format: date-time
+        example: 2018-01-23T21:14:55Z
+      memory_limit:
+        type: integer
+        format: int64
+        example: 0
+      cpus:
+        type: string
+        example: ""
+      cluster_ip:
+        type: string
+        example: 10.1.5.1
+      connection_state:
+        type: string
+        example: connected
+      disconnected_at:
+        type: string
+        example: ""
+  RESTAgentData:
+    type: object
+    required:
+      - enforcer
+    properties:
+      enforcer:
+        $ref: '#/definitions/RESTAgent'
+  RESTAgentsData:
+    type: object
+    required:
+      - enforcers
+    properties:
+      enforcers:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAgent'
+  RESTAgentConfig:
+    type: object
+    properties:
+      debug:
+        type: array
+        items:
+          type: string
+        example:
+          - packet
+          - log
+          - parser
+          - tcp
+          - session
+          - timer
+          - error
+      disable_nvprotect:
+        type: boolean
+        example: false
+      disable_kvcctl:
+        type: boolean
+        example: false
+  RESTAgentConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTAgentConfig'
+  RESTAgentStatsData:
+    type: object
+    required:
+      - id
+      - read_at
+      - stats
+    properties:
+      id:
+        type: string
+        example: 541386aa8e36fe113593cc0dc6678b7d2a
+      read_at:
+        type: string
+        format: date-time
+        example: 2018-01-18T07:20:15Z
+      stats:
+        $ref: '#/definitions/RESTStats'
+  RESTAuditsData:
+    type: object
+    required:
+      - audits
+    properties:
+      audits:
+        type: array
+        items:
+          $ref: '#/definitions/Audit'
+  RESTAuthData:
+    type: object
+    required:
+      - client_ip
+    properties:
+      client_ip:
+        type: string
+        example: ""
+      password:
+        $ref: '#/definitions/RESTAuthPassword'
+      Token:
+        $ref: '#/definitions/RESTAuthToken'
+  RESTAuthPassword:
+    type: object
+    required:
+      - username
+      - password
+    properties:
+      username:
+        type: string
+        example: admin
+      password:
+        type: string
+        format: password
+        example: mypassword
+      new_password:
+        type: string
+        description: need to specify when server responds the user needs to change password
+        example: mynewpassword
+  RESTAuthToken:
+    type: object
+    required:
+      - token
+      - state
+      - redirect_endpoint
+    properties:
+      token:
+        type: string
+        example: ""
+      state:
+        type: string
+        example: ""
+      redirect_endpoint:
+        type: string
+        example: ""
+  RESTAWSAccountKeyConfig:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "831010404316"
+      access_key_id:
+        type: string
+        example: "<access key id from AWS>"
+      secret_access_key:
+        type: string
+        example: "<secret access key from AWS>"
+      region:
+        type: string
+        example: us-west-2
+  RESTAwsCloudRes:
+    type: object
+    required:
+      - cloud_type
+      - project_name
+      - region_list
+      - aws_lambda_resource
+    properties:
+      cloud_type:
+        type: string
+        example: aws_cloud
+      project_name:
+        type: string
+        example: demo_project
+      region_list:
+        type: array
+        items:
+          type: string
+        example:
+          - us-east-1
+          - us-west-1
+          - us-west-2
+      aws_lambda_resource:
+        $ref: '#/definitions/RESTAwsLambdaRes'
+  RESTAwsFuncPermission:
+    type: object
+    required:
+      - aws_attached_policy
+      - policy_permission_level
+      - permission_state
+      - allowed_detail
+    properties:
+      aws_attached_policy:
+        type: boolean
+        example: true
+      policy_permission_level:
+        type: string
+        example: High
+      permission_state:
+        type: array
+        items:
+          type: string
+        example: ["Full Access policy  AWSLambdaFullAccess", "In policy AWSLambdaFullAccess : Full Access to dynamodb "]
+      allowed_detail:
+        type: object
+        properties:
+          key:
+            type: string
+            example: cloudformation
+          value:
+            type: array
+            items:
+              $ref: '#/definitions/RESTAwsResDetail'
+  RESTAwsFunction:
+    type: object
+    required:
+      - function_name
+      - region
+    properties:
+      function_name:
+        type: string
+        example: nvnodejs
+      region:
+        type: string
+        example: us-west-1
+      report:
+        type: array
+        items:
+          $ref: '#/definitions/RESTScanAwsFuncReport'
+  RESTAwsFuncSummary:
+    type: object
+    required:
+      - function_id
+      - version
+      - function_name
+      - scan_result
+      - high
+      - medium
+      - permission_level
+      - status
+    properties:
+      function_id:
+        type: string
+        example: project_id
+      version:
+        type: string
+        example: "1.0"
+      function_name:
+        type: string
+        example: demo_project
+      scan_result:
+        type: string
+        example: ""
+      high:
+        type: integer
+        example: 5
+      medium:
+        type: integer
+        example: 5
+      permission_level:
+        type: string
+        example: ""
+      status:
+        type: string
+        example: data_lost
+  RESTAwsLambdaResDetail:
+    type: object
+    required:
+      - status
+      - func_list
+    properties:
+      status:
+        type: string
+        example: data_lost
+      func_list:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAwsFuncSummary'
+  RESTAwsLambdaRes:
+    type: object
+    required:
+      - status
+      - aws_region_resource
+    properties:
+      status:
+        type: string
+        example: data_lost
+      aws_region_resource:
+        type: object
+        properties:
+          key:
+            type: string
+            example: ""
+          value:
+            $ref: '#/definitions/RESTAwsLambdaResDetail'
+  RESTAwsResDetail:
+    type: object
+    required:
+      - permission_level
+      - resource
+      - permission_state
+    properties:
+      permission_level:
+        type: string
+        example: Low
+      resource:
+        type: string
+        example: DescribeChangeSet
+      permission_state:
+        type: string
+        example: ""
+  RESTAwsResource:
+    type: object
+    required:
+      - project_name
+      - region_list
+      - aws_lambda_resource
+    properties:
+      acc_id:
+        type: string
+        example: ""
+      acc_key:
+        type: string
+        example: ""
+      project_name:
+        type: string
+        example: demo_project
+      region_list:
+        type: array
+        items:
+          type: string
+        example:
+          - us-east-1
+          - us-east-2
+      aws_lambda_resource:
+        $ref: '#/definitions/RESTAwsLambdaRes'
+  RESTAwsResourceConfig:
+    type: object
+    required:
+      - project_name
+    properties:
+      project_name:
+        type: string
+        example: demo_project
+      acc_id:
+        type: string
+        example: ""
+      acc_key:
+        type: string
+        example: ""
+      region_list:
+        type: array
+        items:
+          type: string
+        example:
+          - us-east-1
+          - us-west-1
+          - us-west-2
+  RESTAwsResourceCreate:
+    type: object
+    required:
+      - project_name
+    properties:
+      project_name:
+        type: string
+        example: demo_project
+      acc_id:
+        type: string
+        example: ""
+      acc_key:
+        type: string
+        example: ""
+      region_list:
+        type: array
+        items:
+          type: string
+        example:
+          - us-east-1
+          - us-west-1
+          - us-west-2
+  RESTBenchItem:
+    type: object
+    required:
+      - catalog
+      - type
+      - level
+      - test_number
+      - profile
+      - scored
+      - automated
+      - description
+      - message
+      - remediation
+      - group
+    properties:
+      catalog:
+        type: string
+        example: docker
+      type:
+        type: string
+        example: ""
+      level:
+        type: string
+        example: INFO
+      test_number:
+        type: string
+        example: "1"
+      profile:
+        type: string
+        example: "Level 1"
+      scored:
+        type: boolean
+        example: true
+      automated:
+        type: boolean
+        example: true
+      description:
+        type: string
+        example: "General Configuration"
+      message:
+        type: array
+        items:
+          type: string
+          example: "Host Configuration"
+      remediation:
+        type: string
+        example: ""
+      group:
+        type: string
+        example: nv.calico
+  RESTBenchReport:
+    type: object
+    required:
+      - run_timestamp
+      - run_at
+      - cis_version
+      - items
+    properties:
+      run_timestamp:
+        type: integer
+        format: int64
+        example: 1516561253
+      run_at:
+        type: string
+        format: date-time
+        example: 2018-06-21T19:00:53Z
+      cis_version:
+        type: string
+        example: "1.5.1"
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/RESTBenchItem'
+  RESTCloudResList:
+    type: object
+    required:
+      - cloud_resources
+    properties:
+      cloud_resources:
+        type: array
+        items:
+          $ref: '#/definitions/RESTAwsCloudRes'
+  RESTCLUSEventCondition:
+    type: object
+    properties:
+      type:
+        type: string
+        example: ""
+      value:
+        type: string
+        example: ""
+  RESTComplianceData:
+    type: object
+    required:
+      - run_timestamp
+      - run_at
+      - kubernetes_cis_category
+      - kubernetes_cis_version
+      - docker_cis_version
+      - items
+    properties:
+      run_timestamp:
+        type: integer
+        format: int64
+        example: 1516561253
+      run_at:
+        type: string
+        format: date-time
+        example: 2018-06-21T19:00:53Z
+      kubernetes_cis_category:
+        type: string
+        example: ""
+      kubernetes_cis_version:
+        type: string
+        example: "1.5.1"
+      docker_cis_version:
+        type: string
+        example: "1.2.0"
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/RESTBenchItem'
+  RESTComplianceProfile:
+    type: object
+    required:
+      - name
+      - disable_system
+      - entries
+    properties:
+      name:
+        type: string
+        example: default
+      disable_system:
+        type: boolean
+        example: false
+      entries:
+        type: array
+        items:
+          $ref: '#/definitions/RESTComplianceProfileEntry'
+      cfg_type:
+        type: string
+        enum: [user_created, ground]
+  RESTComplianceProfileConfig:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: default
+      disable_system:
+        type: boolean
+        example: false
+      entries:
+        type: array
+        items:
+          $ref: '#/definitions/RESTComplianceProfileEntry'
+  RESTComplianceProfileConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTComplianceProfileConfig'
+  RESTComplianceProfileEntry:
+    type: object
+    required:
+      - test_number
+      - tags
+    properties:
+      test_number:
+        type: string
+        example: ""
+      tags:
+        type: array
+        items:
+          type: string
+          example: ""
+  RESTComplianceProfileEntryConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTComplianceProfileEntry'
+  RESTComplianceProfileData:
+    type: object
+    required:
+      - profile
+    properties:
+      profile:
+        $ref: '#/definitions/RESTComplianceProfile'
+  RESTComplianceProfilesData:
+    type: object
+    required:
+      - profiles
+    properties:
+      profiles:
+        type: array
+        items:
+          $ref: '#/definitions/RESTComplianceProfile'
+  RESTCompProfilesExport:
+    type: object
+    properties:
+      names:
+        type: array
+        items:
+          type: string
+          example: ["default"]
+      remote_export_options:
+        $ref: '#/definitions/RESTRemoteExportOptions'
+  RESTController:
+    type: object
+    required:
+      - id
+      - name
+      - display_name
+      - host_name
+      - host_id
+      - version
+      - labels
+      - domain
+      - created_at
+      - started_at
+      - joined_at
+      - memory_limit
+      - cpus
+      - cluster_ip
+      - leader
+      - connection_state
+      - disconnected_at
+      - orch_conn_status
+      - orch_conn_last_error
+    properties:
+      id:
+        type: string
+        example: b63882364cd1a56b2234ce0c9266ca403090e5e8148
+      name:
+        type: string
+        example: allinone
+      display_name:
+        type: string
+        example: allinone
+      host_name:
+        type: string
+        example: ubuntu64
+      host_id:
+        type: string
+        example: 2AU7:TIEN:O5KX:QK56:LFQP:IJSV:FXBN:QJV7
+      version:
+        type: string
+        example: "0.1.0"
+      labels:
+        type: object
+        description: map key is string type
+        additionalProperties:
+          type: string
+        example:
+          com.docker.compose.config-hash: e94ce458b3bc97cd478e9738a759d76fb819
+      domain:
+        type: string
+        example: ""
+      created_at:
+        type: string
+        format: date-time
+        example: 2018-01-24T17:16:59Z
+      started_at:
+        type: string
+        format: date-time
+        example: 2018-01-24T17:16:59Z
+      joined_at:
+        type: string
+        format: date-time
+        example: 2018-01-24T17:17:10Z
+      memory_limit:
+        type: integer
+        format: int64
+        example: 0
+      cpus:
+        type: string
+        example: ""
+      cluster_ip:
+        type: string
+        example: 10.1.5.1
+      leader:
+        type: boolean
+        example: true
+      connection_state:
+        type: string
+        example: connected
+      disconnected_at:
+        type: string
+        example: ""
+      orch_conn_status:
+        type: string
+        example: ""
+      orch_conn_last_error:
+        type: string
+        example: ""
+  RESTControllerData:
+    type: object
+    required:
+      - controller
+    properties:
+      controller:
+        $ref: '#/definitions/RESTController'
+  RESTControllerConfig:
+    type: object
+    properties:
+      debug:
+        type: array
+        items:
+          type: string
+        example:
+          - "log"
+          - "parser"
+          - "tcp"
+          - "session"
+          - "error"
+  RESTControllerConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTControllerConfig'
+  RESTCriteriaEntry:
+    type: object
+    required:
+      - key
+      - value
+      - op
+    properties:
+      key:
+        type: string
+        example: pattern
+      value:
+        type: string
+        example: "[0-9]"
+      op:
+        type: string
+        example: regex
+  RESTCustomCheck:
+    type: object
+    required:
+      - name
+      - script
+    properties:
+      name:
+        type: string
+        example: node
+      script:
+        type: string
+        example: "uname -r "
+  RESTCustomCheckConfig:
+    type: object
+    required:
+      - add
+      - delete
+      - update
+    properties:
+      add:
+        $ref: '#/definitions/RESTCustomChecks'
+      delete:
+        $ref: '#/definitions/RESTCustomChecks'
+      update:
+        $ref: '#/definitions/RESTCustomChecks'
+  RESTCustomCheckConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTCustomCheckConfig'
+  RESTCustomCheckData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTCustomChecks'
+  RESTCustomCheckListData:
+    type: object
+    required:
+      - configs
+    properties:
+      configs:
+        type: array
+        items:
+          $ref: '#/definitions/RESTCustomChecks'
+  RESTCustomChecks:
+    type: object
+    required:
+      - group
+      - scripts
+    properties:
+      group:
+        type: string
+        example: containers
+      enabled:
+        type: boolean
+        example: false
+      writable:
+        type: boolean
+        example: false
+      scripts:
+        type: array
+        items:
+          $ref: '#/definitions/RESTCustomCheck'
+  RESTDlpGroup:
+    type: object
+    required:
+      - name
+      - status
+      - sensors
+    properties:
+      name:
+        type: string
+        example: nodes
+      status:
+        type: boolean
+        example: true
+      sensors:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpSetting'
+  RESTDlpGroupConfig:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: ssn
+      status:
+        type: boolean
+        example: true
+      delete:
+        type: array
+        items:
+          type: string
+          example: ""
+      sensors:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpSetting'
+      replace:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpSetting'
+  RESTDlpGroupConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTDlpGroupConfig'
+  RESTDlpGroupData:
+    type: object
+    required:
+      - dlp_group
+    properties:
+      dlp_group:
+        $ref: '#/definitions/RESTDlpGroup'
+  RESTDlpGroupsData:
+    type: object
+    required:
+      - dlp_groups
+    properties:
+      dlp_groups:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpGroup'
+  RESTDlpRule:
+    type: object
+    required:
+      - name
+      - id
+      - patterns
+      - cfg_type
+    properties:
+      name:
+        type: string
+        example: testrule413251424153561246153614615462515134635
+      id:
+        type: integer
+        format: uint32
+        example: 4001
+      patterns:
+        type: array
+        items:
+          $ref: '#/definitions/RESTCriteriaEntry'
+      cfg_type:
+        type: string
+        enum: [user_created, ground]
+  RESTDlpRuleData:
+    type: object
+    required:
+      - rule
+    properties:
+      rule:
+        $ref: '#/definitions/RESTDlpRuleDetail'
+  RESTDlpRuleDetail:
+    type: object
+    required:
+      - sensors
+      - rules
+    properties:
+      sensors:
+        type: array
+        items:
+          type: string
+        example:
+          - "ssn"
+          - "credit"
+      rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpRule'
+  RESTDlpRulesData:
+    type: object
+    required:
+      - rules
+    properties:
+      rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpRule'
+  RESTDlpSensor:
+    type: object
+    required:
+      - name
+      - groups
+      - rules
+      - comment
+      - predefine
+      - cfg_type
+    properties:
+      name:
+        type: string
+        example: sensor.ssn
+      groups:
+        type: array
+        items:
+          type: string
+        example: ["external", "nodes"]
+      rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpRule'
+      comment:
+        type: string
+        example: "Sensor for SSN detection"
+      predefine:
+        type: boolean
+        example: true
+      cfg_type:
+        type: string
+        enum: [user_created, ground]
+  RESTDlpSensorConfig:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: sensor.creditcard
+      change:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpRule'
+      delete:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpRule'
+      rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpRule'
+      comment:
+        type: string
+        example: "Sensor for Credit Card detection"
+  RESTDlpSensorConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTDlpSensorConfig'
+  RESTDlpSensorData:
+    type: object
+    required:
+      - sensor
+    properties:
+      sensor:
+        $ref: '#/definitions/RESTDlpSensor'
+  RESTDlpSensorExport:
+    type: object
+    required:
+      - names
+    properties:
+      names:
+        type: array
+        items:
+          type: string
+        example: [""]
+      remote_export_options:
+        $ref: '#/definitions/RESTRemoteExportOptions'
+  RESTDlpSensorsData:
+    type: object
+    required:
+      - sensors
+    properties:
+      sensors:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDlpSensor'
+  RESTDlpSetting:
+    type: object
+    required:
+      - name
+      - action
+    properties:
+      name:
+        type: string
+        example: sensor.ssn
+      action:
+        type: string
+        example: log
+      comment:
+        type: string
+        example: "logging sensor ssn"
+  RESTDomain:
+    type: object
+    required:
+      - name
+      - workloads
+      - running_workloads
+      - running_pods
+      - services
+      - tags
+      - labels
+    properties:
+      name:
+        type: string
+        example: iperfspace
+      workloads:
+        type: integer
+        example: 14
+      running_workloads:
+        type: integer
+        example: 14
+      running_pods:
+        type: integer
+        example: 7
+      services:
+        type: integer
+        example: 3
+      tags:
+        type: array
+        items:
+          type: string
+        example: [""]
+      labels:
+        type: object
+        description: map key is string type
+        additionalProperties:
+          type: string
+        example:
+          ns.env-1: production
+  RESTDomainConfig:
+    type: object
+    properties:
+      tag_per_domain:
+        type: boolean
+        example: true
+  RESTDomainConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTDomainConfig'
+  RESTDomainsData:
+    type: object
+    required:
+      - domains
+      - tag_per_domain
+    properties:
+      domains:
+        type: array
+        items:
+          $ref: '#/definitions/RESTDomain'
+      tag_per_domain:
+        type: boolean
+        example: false
+  RESTDomainEntryConfig:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: iperfspace
+      tags:
+        type: array
+        items:
+          type: string
+        example: [""]
+  RESTDomainEntryConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTDomainEntryConfig'
+  RESTError:
+    type: object
+    required:
+      - code
+      - error
+      - message
+    properties:
+      code:
+        type: integer
+        example: 3
+      error:
+        type: string
+        example: Request failed
+      message:
+        type: string
+        example: Invalid format
+      password_profile_basic:
+        $ref: '#/definitions/RESTPwdProfileBasic'
+      import_task_data:
+        $ref: '#/definitions/RESTImportTaskData'
+  RESTEULA:
+    type: object
+    required:
+      - accepted
+    properties:
+      accepted:
+        type: boolean
+  RESTEULAData:
+    type: object
+    required:
+      - eula
+    properties:
+      eula:
+        $ref: '#/definitions/RESTEULA'
+      bootstrap_password_command:
+        type: string
+        description: kubectl command for retrieving bootstrap password of default admin user
+      k8s_rbac_alert_message:
+        type: string
+        description: alert message when k8s role/rolebinding neuvector-binding-secret is not correctly configured
+  RESTEventsData:
+    type: object
+    required:
+      - events
+    properties:
+      events:
+        type: array
+        items:
+          $ref: '#/definitions/Event'
+  RESTFedSystemConfig:
+    type: object
+    required:
+      - webhooks
+    properties:
+      webhooks:
+        $ref: '#/definitions/RESTWebhook'
+  RESTFileMonitorConfig:
+    type: object
+    properties:
+      add_filters:
+        type: array
+        items:
+          $ref: '#/definitions/RESTFileMonitorFilterConfig'
+      delete_filters:
+        type: array
+        items:
+          $ref: '#/definitions/RESTFileMonitorFilterConfig'
+      update_filters:
+        type: array
+        items:
+          $ref: '#/definitions/RESTFileMonitorFilterConfig'
+  RESTFileMonitorConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTFileMonitorConfig'
+  RESTFileMonitorFile:
+    type: object
+    required:
+      - path
+      - mask
+      - is_dir
+      - protect
+      - files
+    properties:
+      path:
+        type: string
+        example: ""
+      mask:
+        type: integer
+        format: uint64
+        example: 0
+      is_dir:
+        type: boolean
+        example: false
+      protect:
+        type: boolean
+        example: false
+      files:
+        type: array
+        items:
+          type: string
+        example: [""]
+  RESTFileMonitorFileData:
+    type: object
+    required:
+      - files
+    properties:
+      files:
+        type: array
+        items:
+          $ref: '#/definitions/RESTFileMonitorFile'
+  RESTFileMonitorFilterConfig:
+    type: object
+    required:
+      - filter
+      - recursive
+      - behavior
+      - applications
+      - group
+    properties:
+      filter:
+        type: string
+        example: ""
+      recursive:
+        type: boolean
+        example: false
+      behavior:
+        type: string
+        example: ""
+      applications:
+        type: array
+        items:
+          type: string
+          example: ""
+      group:
+        type: string
+        example: ""
+  RESTGCRKey:
+    type: object
+    properties:
+      json_key:
+        type: string
+        example: ""
+  RESTGCRKeyConfig:
+    type: object
+    properties:
+      json_key:
+        type: string
+        example: ""
+  RESTGroup:
+    type: object
+    required:
+      - name
+      - learned
+      - reserved
+      - domain
+      - creater_domains
+      - kind
+      - platform_role
+      - cap_change_mode
+      - criteria
+      - members
+      - policy_rules
+      - response_rules
+    properties:
+      name:
+        type: string
+        example: kafkadocker_kafka
+      learned:
+        type: boolean
+        example: true
+      reserved:
+        type: boolean
+        example: false
+      policy_mode:
+        type: string
+        example: Discover
+      domain:
+        type: string
+        example: ""
+      creater_domains:
+        type: array
+        items:
+          type: string
+        example: ["domain1", "domain2"]
+      kind:
+        type: string
+        example: ""
+      platform_role:
+        type: string
+        example: core
+      cap_change_mode:
+        type: boolean
+        example: true
+      criteria:
+        type: array
+        items:
+          $ref: '#/definitions/RESTCriteriaEntry'
+      members:
+        type: array
+        items:
+          $ref: '#/definitions/RESTWorkloadBrief'
+      policy_rules:
+        type: array
+        items:
+          type: integer
+          format: uint32
+          example: 10005
+      response_rules:
+        type: array
+        items:
+          type: integer
+          format: uint32
+          example: 1247
+  RESTGroupCaps:
+    type: object
+    properties:
+      cap_change_mode:
+        type: boolean
+        example: false
+      cap_scorable:
+        type: boolean
+        example: false
+  RESTGroupBrief:
+    type: object
+    required:
+      - name
+      - comment
+      - learned
+      - reserved
+      - not_scored
+      - domain
+      - creater_domains
+      - kind
+      - platform_role
+      - cfg_type
+      - baseline_profile
+      - monitor_metric
+      - group_sess_cur
+      - group_sess_rate
+      - group_band_width
+    properties:
+      name:
+        type: string
+        example: ""
+      comment:
+        type: string
+        example: ""
+      learned:
+        type: boolean
+        example: true
+      reserved:
+        type: boolean
+        example: false
+      policy_mode:
+        type: string
+        example: ""
+      profile_mode:
+        type: string
+        example: ""
+      not_scored:
+        type: boolean
+        example: true
+      domain:
+        type: string
+        example: ""
+      creater_domains:
+        type: array
+        items:
+          type: string
+          example: ""
+      kind:
+        type: string
+        example: ""
+      platform_role:
+        type: string
+        example: ""
+      cfg_type:
+        type: string
+        enum: [learned, user_created, ground, federal]
+        example: ground
+      baseline_profile:
+        type: string
+        example: ""
+      monitor_metric:
+        type: boolean
+        example: false
+      group_sess_cur:
+        type: integer
+        format: uint32
+        example: 1
+      group_sess_rate:
+        type: integer
+        format: uint32
+        example: 1
+      group_band_width:
+        type: integer
+        format: uint32
+        example: 1
+      cap_change_mode:
+        type: boolean
+        example: false
+      cap_scorable:
+        type: boolean
+        example: false
+  RESTGroupData:
+    type: object
+    required:
+      - group
+    properties:
+      group:
+        $ref: '#/definitions/RESTGroupDetail'
+  RESTGroupDetail:
+    type: object
+    required:
+      - name
+      - learned
+      - reserved
+      - domain
+      - creater_domains
+      - kind
+      - platform_role
+      - cap_change_mode
+      - cfg_type
+      - monitor_metric
+      - group_sess_cur
+      - group_sess_rate
+      - group_band_width
+      - criteria
+      - members
+      - policy_rules
+      - response_rules
+    properties:
+      name:
+        type: string
+        example: containers
+      learned:
+        type: boolean
+        example: true
+      reserved:
+        type: boolean
+        example: false
+      policy_mode:
+        type: string
+        example: ""
+      domain:
+        type: string
+        example: external
+      creater_domains:
+        type: array
+        items:
+          type: string
+        example: ["domain1", "domain2"]
+      kind:
+        type: string
+        example: ""
+      platform_role:
+        type: string
+        example: admin
+      cap_change_mode:
+        type: boolean
+        example: false
+      cfg_type:
+        type: string
+        enum: [learned, user_created, ground, federal]
+      monitor_metric:
+        type: boolean
+        example: false
+      group_sess_cur:
+        type: integer
+        format: uint32
+        example: 1
+      group_sess_rate:
+        type: integer
+        format: uint32
+        example: 1
+      group_band_width:
+        type: integer
+        format: uint32
+        example: 1
+      criteria:
+        type: array
+        items:
+          $ref: '#/definitions/RESTCriteriaEntry'
+      members:
+        type: array
+        items:
+          $ref: '#/definitions/RESTWorkloadBrief'
+      policy_rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTPolicyRule'
+      response_rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTResponseRule'
+  RESTGroupsData:
+    type: object
+    required:
+      - groups
+    properties:
+      groups:
+        type: array
+        items:
+          $ref: '#/definitions/RESTGroup'
+  RESTGroupConfig:
+    type: object
+    required:
+      - name
+      - cfg_type
+    properties:
+      name:
+        type: string
+        example: containerEQU
+      criteria:
+        type: array
+        items:
+          $ref: '#/definitions/RESTCriteriaEntry'
+      cfg_type:
+        type: string
+        enum: [learned, user_created, ground, federal]
+  RESTGroupConfigData:
+    type: object
+    required:
+      - config
+    properties:
+      config:
+        $ref: '#/definitions/RESTGroupConfig'
+  RESTGroupExport:
+    type: object
+    required:
+      - groups
+    properties:
+      use_name_referral:
+        type: boolean
+        example: false
+        description: Do not export groups' criteria. Instead, refer to NvGroupDefinition CRs for all groups involved in the export.
+      groups:
+        type: array
+        items:
+          type: string
+          example: demo
+      policy_mode:
+        type: string
+        example: Monitor
+        enum: [Learn, Monitor, Protect]
+      profile_mode:
+        type: string
+        example: Monitor
+        enum: [Learn, Monitor, Protect]
+      remote_export_options:
+        $ref: '#/definitions/RESTRemoteExportOptions'
+  RESTHost:
+    type: object
+    required:
+      - name
+      - id
+      - runtime
+      - runtime_version
+      - runtime_api_version
+      - platform
+      - os
+      - kernel
+      - cpus
+      - memory
+      - cgroup_version
+      - containers
+      - interfaces
+      - state
+      - cap_docker_bench
+      - cap_kube_bench
+      - policy_mode
+      - profile_mode
+      - scan_summary
+      - storage_driver
+      - labels
+      - annotations
+    properties:
+      name:
+        type: string
+        example: ubuntu64
+      id:
+        type: string
+        example: 2AU7:TIEN:O5KX:QK56:LFQP:IJSV:FXBN:QJV7:XPAH
+      runtime:
+        type: string
+        example: docker
+      runtime_version:
+        type: string
+        example: "1.10.2"
+      runtime_api_version:
+        type: string
+        example: "1.22"
+      platform:
+        type: string
+        example: Docker
+      os:
+        type: string
+        example: Ubuntu 14.04.3 LTS
+      kernel:
+        type: string
+        example: 3.19.0-25-generic
+      cpus:
+        type: integer
+        format: int64
+        example: 1
+      memory:
+        type: integer
+        format: int64
+        example: 2089816064
+      cgroup_version:
+        type: integer
+        example: 1
+      containers:
+        type: integer
+        example: 107
+      interfaces:
+        type: object
+        description: map key is string type like "eth0"
+        additionalProperties:
+          type: array
+          items:
+              $ref: '#/definitions/RESTIPAddr'
+      state:
+        type: string
+        example: ""
+      cap_docker_bench:
+        type: boolean
+        example: true
+      cap_kube_bench:
+        type: boolean
+        example: true
+      docker_bench_status:
+        type: string
+        example: running
+      kube_bench_status:
+        type: string
+        example: scheduled
+      policy_mode:
+        type: string
+        example: Discover
+      profile_mode:
+        type: string
+        example: Discover
+      scan_summary:
+        $ref: '#/definitions/RESTScanBrief'
+      storage_driver:
+        type: string
+        example: aufs
+      labels:
+        type: object
+        description: map key is string type
+        additionalProperties:
+          type: string
+        example:
+          beta.kubernetes.io/os: linux
+      annotations:
+        type: object
+        description: map key is string type
+        additionalProperties:
+          type: string
+        example:
+          kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+  RESTHostsData:
+    type: object
+    required:
+      - hosts
+    properties:
+      hosts:
+        type: array
+        items:
+          $ref: '#/definitions/RESTHost'
+  RESTHostData:
+    type: object
+    required:
+      - host
+    properties:
+      host:
+        $ref: '#/definitions/RESTHost'
+  RESTIDName:
+    type: object
+    required:
+      - id
+      - display_name
+      - policy_mode
+      - domains
+    properties:
+      id:
+        type: string
+        example: ""
+      display_name:
+        type: string
+        example: ""
+      policy_mode:
+        type: string
+        example: ""
+      domains:
+        type: array
+        items:
+          type: string
+        example: ["domain1", "domain2"]
+  RESTImportTask:
+    type: object
+    required:
+      - tid
+      - ctrler_id
+      - percentage
+    properties:
+      tid:
+        type: string
+        example: c5af897b62a258212ece91c0551d3a4a
+      ctrler_id:
+        type: string
+        example: 6e60452b244b90456f3450c9fed0a50f57f4b849dcb74a5fad289e8116f32f36
+      last_update_time:
+        type: string
+        format: date-time
+        example: "2022-03-17T17:31:55.832768041Z"
+      percentage:
+        type: integer
+        example: 100
+      triggered_by:
+        type: string
+        example: admin
+      status:
+        type: string
+        example: done
+      temp_token:
+        type: string
+        example: ""
+  RESTImportTaskData:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: '#/definitions/RESTImportTask'
+  RESTIncidentsData:
+    type: object
+    required:
+      - incidents
+    properties:
+      incidents:
+        type: array
+        items:
+          $ref: '#/definitions/Incident'
+  RESTIPAddr:
+    type: object
+    required:
+      - ip
+      - ip_prefix
+      - gateway
+    properties:
+      ip:
+        type: string
+        example: 192.168.209.197
+      ip_prefix:
+        type: integer
+        example: 32
+      gateway:
+        type: string
+        example: ""
+  RESTIPPort:
+    type: object
+    required:
+      - ip
+      - port
+    properties:
+      ip:
+        type: string
+        example: 192.168.209.197
+      port:
+        type: integer
+        format: uint16
+        example: 80
+  RESTJfrogXray:
+    type: object
+    required:
+      - url
+      - enable
+      - username
+    properties:
+      url:
+        type: string
+        example: ""
+      enable:
+        type: boolean
+        example: true
+      username:
+        type: string
+        example: ""
+      password:
+        type: string
+        format: password
+        example: ""
+  RESTJfrogXrayConfig:
+    type: object
+    properties:
+      url:
+        type: string
+        example: https://docker-virtual.com
+      enable:
+        type: boolean
+        example: true
+      username:
+        type: string
+        example: myUser
+      password:
+        type: string
+        format: password
+        example: password
+  RESTMappableRoles:
+    type: object
+    required:
+      - default_roles
+      - group_roles
+      - group_domain_roles
+    properties:
+      default_roles:
+        type: array
+        items:
+          type: string
+        example:
+          - "default_role_1"
+          - "default_role_2"
+      group_roles:
+        type: array
+        items:
+          type: string
+        example:
+          - "group_role_1"
+          - "group_role_2"
+      group_domain_roles:
+        type: array
+        items:
+          type: string
+        example:
+          - "group_domain_role_1"
+          - "group_domain_role_2"
+  RESTMetry:
+    type: object
+    required:
+      - cpu
+      - memory
+      - session_in
+      - session_out
+      - packet_in
+      - packet_out
+      - byte_in
+      - byte_out
+    properties:
+      cpu:
+        type: number
+        format: float64
+        example: 1
+      memory:
+        type: integer
+        format: uint64
+        example: 2089816064
+      session_in:
+        type: integer
+        format: uint32
+        example: 0
+      session_out:
+        type: integer
+        format: uint32
+        example: 0
+      cur_session_in:
+        type: integer
+        format: uint32
+        example: 1
+      cur_session_out:
+        type: integer
+        format: uint32
+        example: 1
+      packet_in:
+        type: integer
+        format: uint64
+        example: 0
+      packet_out:
+        type: integer
+        format: uint64
+        example: 0
+      byte_in:
+        type: integer
+        format: uint64
+        example: 0
+      byte_out:
+        type: integer
+        format: uint64
+        example: 0
+  RESTModuleCve:
+    type: object
+    required:
+      - name
+      - status
+    properties:
+      name:
+        type: string
+        example: ""
+      status:
+        type: string
+        example: ""
+  RESTPolicyPromoteRequest:
+    type: object
+    required:
+      - ids
+    properties:
+      ids:
+        type: array
+        items:
+          type: integer
+          format: uint32
+          example: 12
+  RESTPolicyPromoteRequestData:
+    type: object
+    required:
+      - request
+    properties:
+      request:
+        $ref: '#/definitions/RESTPolicyPromoteRequest'
+  RESTPolicyRule:
+    type: object
+    required:
+      - id
+      - comment
+      - from
+      - to
+      - ports
+      - action
+      - applications
+      - learned
+      - disable
+      - created_timestamp
+      - last_modified_timestamp
+      - cfg_type
+      - priority
+      - match_counter
+      - last_match_timestamp
+    properties:
+      id:
+        type: integer
+        format: uint32
+        example: 10002
+      comment:
+        type: string
+        example: a rule
+      from:
+        type: string
+        description: group name
+        example: nv.iperfc
+      to:
+        type: string
+        description: group name
+        example: Host:10.2.127.3
+      ports:
+        type: string
+        description: free-style port list
+        example: any
+      action:
+        type: string
+        example: allow
+      applications:
+        type: array
+        items:
+          type: string
+          example: DNS
+      learned:
+        type: boolean
+        example: true
+      disable:
+        type: boolean
+        example: false
+      created_timestamp:
+        type: integer
+        format: int64
+        example: 1516563263
+      last_modified_timestamp:
+        type: integer
+        format: int64
+        example: 1516573243
+      cfg_type:
+        type: string
+        enum: [learned, user_created, ground, federal]
+      priority:
+        type: integer
+        format: uint32
+        example: 0
+      match_counter:
+        type: integer
+        format: uint64
+        example: 699
+      last_match_timestamp:
+        type: integer
+        format: int64
+        example: 1736811451
+  RESTPolicyRuleActionData:
+    type: object
+    properties:
+      move:
+        $ref: '#/definitions/RESTPolicyRuleMove'
+      insert:
+        $ref: '#/definitions/RESTPolicyRuleInsert'
+      rules:
+        type: array
+        items:
+          $ref: '#/definitions/RESTPolicyRule'
+      delete:
+        type: array
+        items:
+          type: integer
+          format: uint32
+        example:
+          - 1234
+  RESTPolicyRuleConfig:
+    type: object
+    required:
+      - id
+      - cfg_type
+    properties:
+      id:
+        type: integer
+        format: uint32
+        example: 10001
+      comment:
+        type: string
+        example: a deny rule
+      from:
+        type: string
+        example: nv.iperfclient
+      to:
+        type: string
+        example: external
+      ports:
+        type: string
+        example: any
+      action:
+        type: string
+        example: deny
+      applications:
+        type: array
+        items:
+          type: string
+        example:
+          - "HTTP"
+          - "SSH"
+      disable:
+        type: boolean
+        example: true
+      cfg_type:
+        type: string
+        enum: [learned, user_created, ground, federal]
+      priority:
+        type: integer
+        format: uint32
+        example: 0
