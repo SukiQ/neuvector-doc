@@ -14,7 +14,7 @@
 
 ## 容器安全攻击方式
 
-<img src="introducation-1.png"  width="600" alt="introducation-0"/>
+<img src="introducation-1.png"  width="600" alt="introducation-1"/>
 
 - 易受攻击的程序代码：开发人员编写的应用程序代码及其所依赖的第三方依赖可能包含漏洞，攻击者可以利用它们
 
@@ -31,7 +31,7 @@
 
 ## 容器安全攻击案例
 
-<img src="introducation-2.png"  width="700" alt="introducation-0" thumbnail="true"/>
+<img src="introducation-2.png"  width="700" alt="introducation-2" thumbnail="true"/>
 
 
 
