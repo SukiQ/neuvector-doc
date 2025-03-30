@@ -25,6 +25,6 @@ NeuVector官方提供了<resource src="NeuVector最佳部署实践文档.pdf" ty
 
 ## 多云管理
 
-NeuVector 支持实现多云/混合云安全管理
+NeuVector 官方提供了文档 <resource src="NeuVector多云安全管理.pdf" type="file"/>，支持实现多云/混合云安全管理
 
 <img src="deploy-2.png"  width="700" alt="deploy-2"/>
