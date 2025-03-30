@@ -10,5 +10,6 @@
     <toc-element topic="overview.md"/>
     <toc-element topic="deploy.md"/>
     <toc-element topic="navigation.md"/>
+    <toc-element topic="policy.md"/>
     <toc-element topic="api.md"/>
 </instance-profile>

@@ -19,6 +19,10 @@
                    summary="NeuVector部署指南" type="tools"/>
                 <a href="navigation.md"
                    summary="NeuVector界面的浏览与导航" type="branch"/>
+                <a href="policy.md"
+                   summary="描述NeuVector的安全策略及配置方式" type="experiment"/>
+                <a href="api.md"
+                   summary="NeuVector提供的Rest Api接口" type="development"/>
             </cards>
         </misc>
     </section-starting-page>
