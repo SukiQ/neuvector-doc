@@ -9,4 +9,5 @@
     <toc-element topic="introduction.md"/>
     <toc-element topic="overview.md"/>
     <toc-element topic="deploy.md"/>
+    <toc-element topic="navigation.md"/>
 </instance-profile>

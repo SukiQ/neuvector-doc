@@ -17,6 +17,8 @@
                 <title>使用</title>
                 <a href="deploy.md"
                    summary="NeuVector部署指南" type="tools"/>
+                <a href="navigation.md"
+                   summary="NeuVector界面的浏览与导航" type="branch"/>
             </cards>
         </misc>
     </section-starting-page>
