@@ -31,6 +31,11 @@ neuVector的组支持三种模式：
 
 当源组模式和目的组模式冲突时，以最小显示模式运行，确保影响最小
 
+<code-block lang="mermaid">
+graph LR
+   A[学习阶段] --> B[验证阶段] --> C[实施阶段]
+</code-block>
+
 
 
 ## 网络规则
