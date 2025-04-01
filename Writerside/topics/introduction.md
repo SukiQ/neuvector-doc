@@ -10,6 +10,8 @@
 
 <img src="introducation-0.png"  width="700" alt="introducation-0"/>
 
+<note>云原生网络安全相关内容详细可以参照论文 <resource src="云原生网络安全自动化.pdf" type="file"/></note>
+
 
 
 ## 容器安全攻击方式
